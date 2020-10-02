@@ -1,5 +1,3 @@
-import sys
-
 class Product:
     sales_tax_rate = 0.1
 
@@ -25,8 +23,8 @@ class Product:
                 elif list_data[i].lower() != 'at':
                     name = name + list_data[i] + ' '
         except ValueError:
-            print('Error: Invalid input')
-            sys.exit(1)
+            raise ValueError('Invalid input for quantity or price!')
+
         return cls(qty, name, price)
 
     @staticmethod
@@ -42,3 +40,9 @@ class Product:
     @staticmethod
     def is_imported(name):
         return 'imported' in name.lower()
+    
+    def set_sales_tax_rate(self):
+        if(self.is_exempted(self.name)):
+            self.sales_tax_rate = 0.0
+        if(self.is_imported(self.name)):
+            self.sales_tax_rate = self.sales_tax_rate + 0.05

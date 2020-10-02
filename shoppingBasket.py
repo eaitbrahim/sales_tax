@@ -1,4 +1,4 @@
-import sys, math
+import math
 from product import Product
 
 class ShoppingBasket(dict):
@@ -13,17 +13,23 @@ class ShoppingBasket(dict):
             self[key_item].append(item)
         except KeyError:
             self.update({key_item: [item]})
-
+    
+    def load_items(self, file_path):
+        with open(file_path) as inputs:
+            key = 'input'
+            for line in inputs:
+                loweredLine = line.rstrip("\n").lower()
+                if 'input' in loweredLine and ':' in loweredLine:
+                    key = loweredLine.strip(':')
+                elif loweredLine != '' and loweredLine != ' ':
+                    self.add_basket_item(key, loweredLine)
+            
     def checkout(self):
         for key in self:
             self.print_receipt_header(key)
-            
-            for item in self[key]:
-                if(item.is_exempted(item.name)):
-                    item.sales_tax_rate = 0.0
 
-                if(item.is_imported(item.name)):
-                    item.sales_tax_rate = item.sales_tax_rate + 0.05
+            for item in self[key]:
+                item.set_sales_tax_rate()
 
                 sales_tax = self.calc_sales_tax(item.price, item.sales_tax_rate)
                 self.total_sales_taxes += sales_tax
@@ -34,7 +40,6 @@ class ShoppingBasket(dict):
 
             self.print_receipt_footer()
             self.reset_totals()
-                
 
     def calc_sales_tax(self, price, sales_tax_rate):
         return ShoppingBasket.nearest_rounded_up *  math.ceil(price * sales_tax_rate / ShoppingBasket.nearest_rounded_up)
